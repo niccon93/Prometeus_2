@@ -33,7 +33,67 @@
 
 ### Требования к результату
 - [ ] Погасите node exporter, стоящий на мониторинге, и прикрепите скриншот раздела оповещений Prometheus, где оповещение будет в статусе Pending
+Создаем правило
+```
+sudo nano /etc/prometheus/netology-prometheus.yml
+sudo chown -R prometheus:prometheus /etc/prometheus/netology-prometheus.yml
+```
+Содержимое правила
+```
+groups: # Список групп
+- name: netology-prometheus # Имя группы
+  rules: # Список правил текущей группы
+  - alert: InstanceDown # Название текущего правила
+    expr: up == 0 # Логическое выражение
+    for: 1m # Сколько ждать отбоя предупреждения перед отправкой оповещения
+    labels:
+      severity: critical # Критичность события
+    annotations: # Описание
+      description: '{{ $labels.instance }} of job {{ $labels.job }} has been down for more than 1 minute.' # Полное описание алерта
+      summary: Instance {{ $labels.instance }} down # Краткое описание алерта
+```
+Подключаем правила
+```
+sudo nano /etc/prometheus/prometheus.yml #Содержимое файла ниже в блоке кода
+sudo systemctl restart prometheus
+sudo systemctl status prometheus
+sudo systemctl status node-exporter
+sudo systemctl stop node-exporter
+```
+Содержимое prometheus.yml
+```
 
+global:
+  scrape_interval: 15s # Set the scrape interval to every 15 seconds. Default is every 1 minute.
+  evaluation_interval: 15s # Evaluate rules every 15 seconds. The default is every 1 minute.
+  # scrape_timeout is set to the global default (10s).
+
+# Alertmanager configuration
+alerting:
+  alertmanagers:
+    - static_configs:
+        - targets:
+          # - alertmanager:9093
+
+# Load rules once and periodically evaluate them according to the global 'evaluation_interval'.
+rule_files:
+  - "netology-prometheus.yml"
+  # - "first_rules.yml"
+  # - "second_rules.yml"
+
+# A scrape configuration containing exactly one endpoint to scrape:
+# Here it's Prometheus itself.
+scrape_configs:
+  # The job name is added as a label `job=<job_name>` to any timeseries scraped from this config.
+  - job_name: "prometheus"
+    scrape_interval: 5s
+    # metrics_path defaults to '/metrics'
+    # scheme defaults to 'http'.
+
+    static_configs:
+      - targets: ['localhost:9090', 'localhost:9100']
+```
+![img](img/1.PNG)
 ---
 
 ### Задание 2
