@@ -33,6 +33,7 @@
 
 ### Требования к результату
 - [ ] Погасите node exporter, стоящий на мониторинге, и прикрепите скриншот раздела оповещений Prometheus, где оповещение будет в статусе Pending
+
 Создаем правило
 ```
 sudo nano /etc/prometheus/netology-prometheus.yml
