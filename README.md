@@ -165,18 +165,29 @@ sudo systemctl status docker
 Содержимое файла daemon.json
 ```
 {
- "metrics-addr" : "localhost:9323",
+ "metrics-addr" : "0.0.0.0:9323",
  "experimental" : true
 }
 ```
 Добавляем endpoint Docker в Prometheus
 ```
-sudo nano /etc/prometheus/prometheus.yml #В секцию  scrape_configs-> static_configs -> targets добавляем адрес localhost:9323
+sudo nano /etc/prometheus/prometheus.yml 
+#В секцию  scrape_configs-> добавляем
+  - job_name: 'docker'
+         # metrics_path defaults to '/metrics'
+         # scheme defaults to 'http'.
+
+    static_configs:
+      - targets: ['127.0.0.1:9323']
+
+
 sudo systemctl restart prometheus.service
 sudo systemctl status prometheus.service
 sudo systemctl start node-exporter.service
 sudo systemctl status node-exporter.service
 ```
+![img](img/3.1.PNG)
+![img](img/3.2.PNG)
 ---
 
 ### Задание 4* со звездочкой 
