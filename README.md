@@ -149,7 +149,33 @@ sudo systemctl status prometheus.service
 
 ### Требования к результату
 - [ ] приложите скриншот браузера с открытым эндпоинтом, а также скриншот списка таргетов из интерфейса Prometheus.*
+```
+# Устанавливаем Docker
+curl -fsSL https://get.docker.com -o get-docker.sh
+sh get-docker.sh
+sudo usermod -aG docker root
+sudo systemctl status docker
 
+# Включаем выгрузку данных на хосте с Docker
+sudo nano /etc/docker/daemon.json #Содержимое файла ниже в блоке кода
+sudo systemctl restart docker
+sudo systemctl status docker
+```
+Содержимое файла daemon.json
+```
+{
+ "metrics-addr" : "localhost:9323",
+ "experimental" : true
+}
+```
+Добавляем endpoint Docker в Prometheus
+```
+sudo nano /etc/prometheus/prometheus.yml #В секцию  scrape_configs-> static_configs -> targets добавляем адрес localhost:9323
+sudo systemctl restart prometheus.service
+sudo systemctl status prometheus.service
+sudo systemctl start node-exporter.service
+sudo systemctl status node-exporter.service
+```
 ---
 
 ### Задание 4* со звездочкой 
