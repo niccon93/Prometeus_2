@@ -118,7 +118,7 @@ sudo journalctl -xeu prometheus-alertmanager.service
 ```
 Содержимое prometheus-alertmanager.service
 ```
-nit]
+[Unit]
 Description=Alertmanager Service
 After=network.target
 [Service]
