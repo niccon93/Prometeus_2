@@ -102,6 +102,45 @@ scrape_configs:
 ### Требования к результату
 - [ ] Прикрепите скриншот Alerts из Prometheus, где правило оповещения будет в статусе Fireing, и скриншот из Alertmanager, где будет видно действующее правило оповещения
 
+```
+wget https://github.com/prometheus/alertmanager/releases/download/v0.25.0/alertmanager-0.25.0.linux-386.tar.gz
+tar -xvf alertmanager-0.25.0.linux-386.tar.gz 
+sudo cp alertmanager-0.25.0.linux-386/alertmanager /usr/local/bin
+sudo cp alertmanager-0.25.0.linux-386/amtool /usr/local/bin
+sudo cp alertmanager-0.25.0.linux-386/alertmanager.yml /etc/prometheus
+sudo chown -R prometheus:prometheus /etc/prometheus/alertmanager.yml
+sudo nano /etc/systemd/system/prometheus-alertmanager.service #Содержимое файла ниже в блоке кода
+sudo systemctl enable prometheus-alertmanager
+sudo systemctl start prometheus-alertmanager
+sudo systemctl status prometheus-alertmanager
+sudo journalctl -xeu prometheus-alertmanager.service
+```
+Содержимое prometheus-alertmanager.service
+```
+nit]
+Description=Alertmanager Service
+After=network.target
+[Service]
+EnvironmentFile=-/etc/default/alertmanager
+User=prometheus
+Group=prometheus
+Type=simple
+ExecStart=/usr/local/bin/alertmanager \
+--config.file=/etc/prometheus/alertmanager.yml \
+--storage.path=/var/lib/prometheus/alertmanager $ARGS
+ExecReload=/bin/kill -HUP $MAINPID
+Restart=on-failure
+[Install]
+WantedBy=multi-user.target
+```
+Подключаем Prometheus к Alertmanager
+```
+sudo nano /etc/prometheus/prometheus.yml #В секцию alerting -> alertmanagers -> static_configs -> static_configs вписываем строку - localhost:9093
+sudo systemctl restart prometheus.service
+sudo systemctl status prometheus.service
+```
+![img](img/2.1.PNG)
+![img](img/2.2.PNG)
 ---
 
 ### Задание 3
